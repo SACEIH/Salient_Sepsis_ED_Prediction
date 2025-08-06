@@ -54,7 +54,9 @@ will be verified for
 - indigenous status, 
 - the hospital,
 - age groups, 
-- triage categories. 
+- triage categories, 
+- arrival mode. 
+
 The true positive and true negative rates will be compared across these subgroups.
 
 ## Optimisation 
