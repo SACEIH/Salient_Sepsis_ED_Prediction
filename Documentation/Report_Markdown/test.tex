@@ -1,0 +1,2532 @@
+%%
+% Copyright (c) 2017 - 2025, Pascal Wagler;
+% Copyright (c) 2014 - 2025, John MacFarlane
+%
+% All rights reserved.
+%
+% Redistribution and use in source and binary forms, with or without
+% modification, are permitted provided that the following conditions
+% are met:
+%
+% - Redistributions of source code must retain the above copyright
+% notice, this list of conditions and the following disclaimer.
+%
+% - Redistributions in binary form must reproduce the above copyright
+% notice, this list of conditions and the following disclaimer in the
+% documentation and/or other materials provided with the distribution.
+%
+% - Neither the name of John MacFarlane nor the names of other
+% contributors may be used to endorse or promote products derived
+% from this software without specific prior written permission.
+%
+% THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+% "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+% LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+% FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+% COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+% INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+% BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+% LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+% CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+% LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+% ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+% POSSIBILITY OF SUCH DAMAGE.
+%%
+
+%%
+% This is the Eisvogel pandoc LaTeX template.
+%
+% For usage information and examples visit the official GitHub page:
+% https://github.com/Wandmalfarbe/pandoc-latex-template
+%%
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names,table}{xcolor}
+\documentclass[
+  a4paper,
+  ,captions=tableheading
+]{scrartcl}
+\usepackage{xcolor}
+\usepackage[left=1cm,right=1cm,top=2.6cm,bottom=3.25cm]{geometry}
+\usepackage{amsmath,amssymb}
+
+
+% add backlinks to footnote references, cf. https://tex.stackexchange.com/questions/302266/make-footnote-clickable-both-ways
+\usepackage{footnotebackref}
+\setcounter{secnumdepth}{5}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+
+% Use setspace anyway because we change the default line spacing.
+% The spacing is changed early to affect the titlepage and the TOC.
+\usepackage{setspace}
+\setstretch{1.2}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{listings}
+\newcommand{\passthrough}[1]{#1}
+\lstset{defaultdialect=[5.3]Lua}
+\lstset{defaultdialect=[x86masm]Assembler}
+\usepackage{longtable,booktabs,array}
+\usepackage{pdflscape}
+  \newcommand{\blandscape}{\begin{landscape}}
+  \newcommand{\elandscape}{\end{landscape}} 
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+% Make use of float-package and set default placement for figures to H.
+% The option H means 'PUT IT HERE' (as  opposed to the standard h option which means 'You may put it here if you like').
+\usepackage{float}
+\floatplacement{figure}{H}
+\makeatother
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
+  \fi
+  % set entry spacing
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\makeatletter
+\@ifpackageloaded{subfig}{}{\usepackage{subfig}}
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\captionsetup[subfloat]{margin=0.5em}
+\AtBeginDocument{%
+\renewcommand*\figurename{Figure}
+\renewcommand*\tablename{Table}
+}
+\AtBeginDocument{%
+\renewcommand*\listfigurename{List of Figures}
+\renewcommand*\listtablename{List of Tables}
+}
+\newcounter{pandoccrossref@subfigures@footnote@counter}
+\newenvironment{pandoccrossrefsubfigures}{%
+\setcounter{pandoccrossref@subfigures@footnote@counter}{0}
+\begin{figure}\centering%
+\gdef\global@pandoccrossref@subfigures@footnotes{}%
+\DeclareRobustCommand{\footnote}[1]{\footnotemark%
+\stepcounter{pandoccrossref@subfigures@footnote@counter}%
+\ifx\global@pandoccrossref@subfigures@footnotes\empty%
+\gdef\global@pandoccrossref@subfigures@footnotes{{##1}}%
+\else%
+\g@addto@macro\global@pandoccrossref@subfigures@footnotes{, {##1}}%
+\fi}}%
+{\end{figure}%
+\addtocounter{footnote}{-\value{pandoccrossref@subfigures@footnote@counter}}
+\@for\f:=\global@pandoccrossref@subfigures@footnotes\do{\stepcounter{footnote}\footnotetext{\f}}%
+\gdef\global@pandoccrossref@subfigures@footnotes{}}
+\newcommand*\listoflistings\lstlistoflistings
+\AtBeginDocument{%
+\renewcommand*{\lstlistlistingname}{List of Listings}
+}
+\makeatother
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\definecolor{default-linkcolor}{HTML}{A50000}
+\definecolor{default-filecolor}{HTML}{A50000}
+\definecolor{default-citecolor}{HTML}{4077C0}
+\definecolor{default-urlcolor}{HTML}{4077C0}
+
+\hypersetup{
+  pdftitle={SALIENT: ED Machine Learning Sepsis Prediction},
+  pdfauthor={Iain A Bertram,},
+  hidelinks,
+  breaklinks=true,
+  pdfcreator={LaTeX via pandoc with the Eisvogel template}}
+
+\title{SALIENT: ED Machine Learning Sepsis Prediction}
+\author{Iain A Bertram,}
+\date{11 July 2025}
+
+\usepackage[pages=all]{background}
+
+%
+% for the background color of the title page
+%
+\usepackage{pagecolor}
+\usepackage{afterpage}
+\usepackage{tikz}
+
+%
+% break urls
+%
+\PassOptionsToPackage{hyphens}{url}
+
+%
+% When using babel or polyglossia with biblatex, loading csquotes is recommended
+% to ensure that quoted texts are typeset according to the rules of your main language.
+%
+\usepackage{csquotes}
+
+%
+% captions
+%
+\definecolor{caption-color}{HTML}{777777}
+\usepackage[font={stretch=1.2}, textfont={color=caption-color}, position=top, skip=4mm, labelfont=bf, singlelinecheck=false, justification=raggedright]{caption}
+\setcapindent{0em}
+
+%
+% blockquote
+%
+\definecolor{blockquote-border}{RGB}{221,221,221}
+\definecolor{blockquote-text}{RGB}{119,119,119}
+\usepackage{mdframed}
+\newmdenv[rightline=false,bottomline=false,topline=false,linewidth=3pt,linecolor=blockquote-border,skipabove=\parskip]{customblockquote}
+\renewenvironment{quote}{\begin{customblockquote}\list{}{\rightmargin=0em\leftmargin=0em}%
+\item\relax\color{blockquote-text}\ignorespaces}{\unskip\unskip\endlist\end{customblockquote}}
+
+%
+% Source Sans Pro as the default font family
+% Source Code Pro for monospace text
+%
+% 'default' option sets the default
+% font family to Source Sans Pro, not \sfdefault.
+%
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+    \usepackage[default]{sourcesanspro}
+  \usepackage{sourcecodepro}
+  \else % if not pdftex
+    \usepackage[default]{sourcesanspro}
+  \usepackage{sourcecodepro}
+
+  % XeLaTeX specific adjustments for straight quotes: https://tex.stackexchange.com/a/354887
+  % This issue is already fixed (see https://github.com/silkeh/latex-sourcecodepro/pull/5) but the
+  % fix is still unreleased.
+  % TODO: Remove this workaround when the new version of sourcecodepro is released on CTAN.
+  \ifxetex
+    \makeatletter
+    \defaultfontfeatures[\ttfamily]
+      { Numbers   = \sourcecodepro@figurestyle,
+        Scale     = \SourceCodePro@scale,
+        Extension = .otf }
+    \setmonofont
+      [ UprightFont    = *-\sourcecodepro@regstyle,
+        ItalicFont     = *-\sourcecodepro@regstyle It,
+        BoldFont       = *-\sourcecodepro@boldstyle,
+        BoldItalicFont = *-\sourcecodepro@boldstyle It ]
+      {SourceCodePro}
+    \makeatother
+  \fi
+  \fi
+
+%
+% heading color
+%
+\definecolor{heading-color}{RGB}{40,40,40}
+\addtokomafont{section}{\color{heading-color}}
+% When using the classes report, scrreprt, book,
+% scrbook or memoir, uncomment the following line.
+%\addtokomafont{chapter}{\color{heading-color}}
+
+%
+% variables for title, author and date
+%
+\usepackage{titling}
+\title{SALIENT: ED Machine Learning Sepsis Prediction}
+\author{Iain A Bertram,}
+\date{11 July 2025}
+
+%
+% tables
+%
+
+\definecolor{table-row-color}{HTML}{F5F5F5}
+\definecolor{table-rule-color}{HTML}{999999}
+
+%\arrayrulecolor{black!40}
+\arrayrulecolor{table-rule-color}     % color of \toprule, \midrule, \bottomrule
+\setlength\heavyrulewidth{0.3ex}      % thickness of \toprule, \bottomrule
+\renewcommand{\arraystretch}{1.1}     % spacing (padding)
+
+
+%
+% remove paragraph indentation
+%
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+
+%
+%
+% Listings
+%
+%
+
+
+%
+% general listing colors
+%
+\definecolor{listing-background}{HTML}{F7F7F7}
+\definecolor{listing-rule}{HTML}{B3B2B3}
+\definecolor{listing-numbers}{HTML}{B3B2B3}
+\definecolor{listing-text-color}{HTML}{000000}
+\definecolor{listing-keyword}{HTML}{435489}
+\definecolor{listing-keyword-2}{HTML}{1284CA} % additional keywords
+\definecolor{listing-keyword-3}{HTML}{9137CB} % additional keywords
+\definecolor{listing-identifier}{HTML}{435489}
+\definecolor{listing-string}{HTML}{00999A}
+\definecolor{listing-comment}{HTML}{8E8E8E}
+
+\lstdefinestyle{eisvogel_listing_style}{
+  language         = java,
+  numbers          = left,
+  xleftmargin      = 2.7em,
+  framexleftmargin = 2.5em,
+  backgroundcolor  = \color{listing-background},
+  basicstyle       = \color{listing-text-color}\linespread{1.0}%
+                      \lst@ifdisplaystyle%
+                      \scriptsize%
+                      \fi\ttfamily{},
+  breaklines       = true,
+  frame            = single,
+  framesep         = 0.19em,
+  rulecolor        = \color{listing-rule},
+  frameround       = ffff,
+  tabsize          = 4,
+  numberstyle      = \color{listing-numbers},
+  aboveskip        = 1.0em,
+  belowskip        = 0.1em,
+  abovecaptionskip = 0em,
+  belowcaptionskip = 1.0em,
+  keywordstyle     = {\color{listing-keyword}\bfseries},
+  keywordstyle     = {[2]\color{listing-keyword-2}\bfseries},
+  keywordstyle     = {[3]\color{listing-keyword-3}\bfseries\itshape},
+  sensitive        = true,
+  identifierstyle  = \color{listing-identifier},
+  commentstyle     = \color{listing-comment},
+  stringstyle      = \color{listing-string},
+  showstringspaces = false,
+  escapeinside     = {/*@}{@*/}, % Allow LaTeX inside these special comments
+  literate         =
+  {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+  {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+  {à}{{\`a}}1 {è}{{\`e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1
+  {À}{{\`A}}1 {È}{{\`E}}1 {Ì}{{\`I}}1 {Ò}{{\`O}}1 {Ù}{{\`U}}1
+  {ä}{{\"a}}1 {ë}{{\"e}}1 {ï}{{\"i}}1 {ö}{{\"o}}1 {ü}{{\"u}}1
+  {Ä}{{\"A}}1 {Ë}{{\"E}}1 {Ï}{{\"I}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1
+  {â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+  {Â}{{\^A}}1 {Ê}{{\^E}}1 {Î}{{\^I}}1 {Ô}{{\^O}}1 {Û}{{\^U}}1
+  {œ}{{\oe}}1 {Œ}{{\OE}}1 {æ}{{\ae}}1 {Æ}{{\AE}}1 {ß}{{\ss}}1
+  {ç}{{\c c}}1 {Ç}{{\c C}}1 {ø}{{\o}}1 {å}{{\r a}}1 {Å}{{\r A}}1
+  {€}{{\EUR}}1 {£}{{\pounds}}1 {«}{{\guillemotleft}}1
+  {»}{{\guillemotright}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1
+  {…}{{\ldots}}1 {≥}{{>=}}1 {≤}{{<=}}1 {„}{{\glqq}}1 {“}{{\grqq}}1
+  {”}{{''}}1
+}
+\lstset{style=eisvogel_listing_style}
+
+%
+% Java (Java SE 12, 2019-06-22)
+%
+\lstdefinelanguage{Java}{
+  morekeywords={
+    % normal keywords (without data types)
+    abstract,assert,break,case,catch,class,continue,default,
+    do,else,enum,exports,extends,final,finally,for,if,implements,
+    import,instanceof,interface,module,native,new,package,private,
+    protected,public,requires,return,static,strictfp,super,switch,
+    synchronized,this,throw,throws,transient,try,volatile,while,
+    % var is an identifier
+    var
+  },
+  morekeywords={[2] % data types
+    % primitive data types
+    boolean,byte,char,double,float,int,long,short,
+    % String
+    String,
+    % primitive wrapper types
+    Boolean,Byte,Character,Double,Float,Integer,Long,Short
+    % number types
+    Number,AtomicInteger,AtomicLong,BigDecimal,BigInteger,DoubleAccumulator,DoubleAdder,LongAccumulator,LongAdder,Short,
+    % other
+    Object,Void,void
+  },
+  morekeywords={[3] % literals
+    % reserved words for literal values
+    null,true,false,
+  },
+  sensitive,
+  morecomment  = [l]//,
+  morecomment  = [s]{/*}{*/},
+  morecomment  = [s]{/**}{*/},
+  morestring   = [b]",
+  morestring   = [b]',
+}
+
+\lstdefinelanguage{XML}{
+  morestring      = [b]",
+  moredelim       = [s][\bfseries\color{listing-keyword}]{<}{\ },
+  moredelim       = [s][\bfseries\color{listing-keyword}]{</}{>},
+  moredelim       = [l][\bfseries\color{listing-keyword}]{/>},
+  moredelim       = [l][\bfseries\color{listing-keyword}]{>},
+  morecomment     = [s]{<?}{?>},
+  morecomment     = [s]{<!--}{-->},
+  commentstyle    = \color{listing-comment},
+  stringstyle     = \color{listing-string},
+  identifierstyle = \color{listing-identifier}
+}
+
+%
+% header and footer
+%
+\usepackage[headsepline]{scrlayer-scrpage}
+
+\newpairofpagestyles{eisvogel-header-footer}{
+  \clearpairofpagestyles
+  \ihead*{\hspace{1cm}}
+  \chead*{OFFICIAL: Sensitive}
+  \ohead*{Page \thepage}
+  \ifoot*{\hspace{1cm}}
+  \cfoot*{OFFICIAL: Sensitive}
+  \ofoot*{\hspace{1cm}}
+  \addtokomafont{pageheadfoot}{\upshape}
+}
+\pagestyle{eisvogel-header-footer}
+
+
+\backgroundsetup{
+scale=1,
+color=black,
+opacity=0.5,
+angle=0,
+contents={%
+  \includegraphics[width=\paperwidth,height=\paperheight]{headers.pdf}
+  }%
+}
+
+%
+% Define watermark
+%
+
+\begin{document}
+
+\begin{titlepage}
+\newgeometry{top=2cm, right=4cm, bottom=3cm, left=4cm}
+\tikz[remember picture,overlay] \node[inner sep=0pt] at (current page.center){\includegraphics[width=\paperwidth,height=\paperheight]{Word\_document\_template\_back.png}};
+\newcommand{\colorRule}[3][black]{\textcolor[HTML]{#1}{\rule{#2}{#3}}}
+\begin{flushleft}
+\noindent
+\\[-1em]
+\color[HTML]{FFFFFF}
+\makebox[0pt][l]{\colorRule[360049]{1.3\textwidth}{0pt}}
+\par
+\noindent
+
+% The titlepage with a background image has other text spacing and text size
+{
+  \setstretch{2}
+  \vfill
+  \vskip -8em
+  \noindent {\huge \textbf{\textsf{SALIENT: ED Machine Learning Sepsis
+Prediction}}}
+    \vskip 2em
+  \noindent {\Large \textsf{Iain A Bertram,} \vskip 0.6em \textsf{11
+July 2025}}
+  \vfill
+}
+
+
+\end{flushleft}
+\end{titlepage}
+\restoregeometry
+\pagenumbering{arabic}
+
+% don't generate the default title
+% \maketitle
+
+
+{
+\setcounter{tocdepth}{3}
+\tableofcontents
+\newpage
+}
+\section{About this document}\label{about-this-document}
+
+This technical document has been developed as part of the `Gen Med
+Project' by the Commission on Excellence and Innovation in Health
+(CEIH). The project forms part of a program of work that is funded
+through the Acute Models of Care Grant 2022 by the Medical Research
+Future Fund (MRFF). The project's primary goal is to reduce unwarranted
+clinical variation in general medicine, using a data analytics and
+machine learning approach.
+
+Sepsis was identified as a focus area from early analysis that looked at
+high bed day consumption and high opportunity Diagnosis Related Groups
+(DRGs) that included shortness of breath as a symptom.
+
+\section{Document Revisions}\label{document-revisions}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.1739}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2464}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2899}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2899}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+No.
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Date
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Person
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0.1 & 30/10/24 & First Draft Document describing the ED Sepsis
+Presentation ML model, and the various verification requirements for the
+model. & Iain Bertram \\
+& & & \\
+& & & \\
+\end{longtable}
+
+\pagebreak
+
+\section{Introduction}\label{introduction}
+
+A new adult sepsis pathway has been proposed for use with public
+hospitals within South Australia. This pathway is intended to identify
+patients who are at risk of developing Sepsis and initiating a
+standardised treatment programme. The patients are identified using
+Rapid Detection and Response (RDR) Observation Charts as implemented
+within the public hospital Electronic Medical Record (EMR) using the
+Sunrise Deteriorating Patient Reference Guide {[}1{]}.
+
+There are two pathways for flagging a patient as being at risk of Sepsis
+and requiring either review by a Senior Medical Officer or a Medical
+Emergency response. The Purple pathway is triggered if any of the
+patient's observations in the Rapid Detection and Response (RDR) are in
+the purple zone (Table \ref{tbl:table1}). The Red pathway is triggered
+if there are two or more red zone observations.
+
+This report describes the development of a Machine Learning (ML) model
+that can be used in place of these pathways. I.e. to develop machine
+learning models that identify people who will be admitted to hospital
+and will have a sepsis diagnosis (based on ICD-10 codes) on inpatient
+discharge based on measurement of the patient's vital signs.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.3200}}
+  >{\centering\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1200}}
+  >{\centering\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.0960}}
+  >{\centering\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1200}}
+  >{\centering\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1200}}
+  >{\centering\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1040}}
+  >{\centering\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1200}}@{}}
+\caption{\label{tbl:table1}Rapid Detection and Response (RDR) Alert
+Triggers}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Measure
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Purple
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Red
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Yellow
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Yellow
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Red
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Purple
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Measure
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Purple
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Red
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Yellow
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Yellow
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Red
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Purple
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+& & Low & & & High & \\
+Respiration (breaths/min) & 7 & & 10 & 21 & 26 & 31 \\
+O\textsubscript{2} Saturation (\%) & 88 & 91 & 94 & NA & NA & NA \\
+O\textsubscript{2} Flow (L/min) & NA & NA & NA & 5 & 7 & 8 \\
+Blood Pressure Systolic (mm Hg) & 89 & 99 & NA & 170 & 180 & 200 \\
+Pulse Rate (beats/min) & 39 & 49 & 59 & 100 & 120 & 140 \\
+Temperature (ºC) & & 35 & 35.5 & 38.1 & 38.6 & \\
+Level of Consciousness & NA & NA & NA & & 2 & 3 \\
+\end{longtable}
+
+\newpage
+
+\section{Cohort}\label{cohort}
+
+The data for this study was sourced from the South Australian Electronic
+Medical Record system (EMR). The data set is composed of Emergency
+Department (ED) presentations by an adult (age of at least 16 years)
+followed by an inpatient (IP) admission with sepsis diagnosis identified
+by the ICD-10 codes, Table \ref{tbl:tableicd-10} \footnote{We have
+  removed infant Sepsis ICD-10 codes from the previous work.} (based on
+a journey, see appendix \ref{sec:Journey}).
+
+Specifically we only include the first ED presentation in a journey. The
+ED presentation must also be the first EoC in the journey. This excludes
+presentations that are part of the admission process when the patient is
+transferred from one hospital to another. It also excludes complex
+journeys such as a patient who is admitted via day procedure in hospital
+(e.g.~Extracorporeal dialysis) We also require that at least three of
+the following vital signs are recorded in the EMR during the
+presentation: respiration, O\textsubscript{2} Saturation, systolic blood
+pressure, pulse rate and temperature\footnote{O\textsubscript{2} Flow
+  and the sedation score are not included as these are not usually
+  filled out if the patient is not receiving oxygen or is awake and
+  aware.} (Table \ref{tbl:table1}).
+
+The IP admission is required to be the first episode of care (EoC) after
+any ED presentations \footnote{Note to self, need to look at joining
+  transfers. See CAP and COPD analyses.}. IP admissions where the
+patient does not leave the ED are excluded (these are identified by an
+IP discharge date/time within 60 minutes of the discharge date/time of
+the ED presentation and a location that includes the string
+``ED-Admin''.)
+
+The training data set includes all presentations to Emergency
+Departments at metropolitan hospitals in the calendar year 2023 in which
+at least three observations of vital signs of interest have been made
+(see Table \ref{tbl:table1}). There are 260,596 ED presentations with at
+least three vital signs recorded which included 2,557 presentations that
+resulted in an inpatient admission which includes at least one ICD-10
+code matching a Sepsis diagnosis (of these 920 have sepsis as the
+primary, or first-listed, diagnosis). Note, 52,233 (16.7\%) out of a
+total 312,829 ED presentations do not have at least three observations
+of vital signs recorded in the EMR and have been excluded from the
+analysis.
+
+The first verification data set is created from all ED presentations at
+metropolitan hospitals in the calendar year 2024 in which at least three
+observations of vital signs of interest have been made. There are
+263,594 ED presentations with at least three vital signs recorded which
+included 2,446 presentations that resulted in an inpatient admission
+which includes at least one ICD-10 code matching a Sepsis diagnosis (of
+these 912 have sepsis as the primary, or first-listed, diagnosis). Note,
+46,250 (14.9\%) out of a total 309,844 ED presentations do not have at
+least three observations of vital signs recorded in the EMR and have
+been excluded from the analysis.
+
+The fraction of Sepsis cases that are not identified, ICD-10 A41.9,
+i.e.~where pathology tests have not identified the infection agent, is
+66.9\% in the 2023 training data set and 69.4\% in the 2024 verification
+data set (see Tables \ref{tbl:table-verification_2023-icd10} \&
+\ref{tbl:table-verification_2024-icd10}).
+
+\newpage
+
+\section{Validation Metrics}\label{validation-metrics}
+
+The performance of the ML model will evaluated in comparison with
+current scoring systems in terms of sensitivity/specificity and against
+the proposed adult sepsis pathway. The two scoring systems used are
+qSOFA and the SIRS criteria. In addition the fraction of patients who
+require ICU usage and patient mortality will also be examined.
+
+\subsection{qSOFSA}\label{qsofsa}
+
+The quick Sequential Organ Failure Assessment (qSOFA) {[}2{]} is used to
+identify high-risk patients for in-hospital mortality with suspected
+infection outside the ICU. Two or more of the following criteria need to
+be met for a positive qSOFA:
+
+\begin{itemize}
+\tightlist
+\item
+  Glasgow Coma Scale \textless{} 15,
+\item
+  Respiratory rate \(\ge\) 22,
+\item
+  Systolic Blood Pressure \(\le\) 100 mmHg.
+\end{itemize}
+
+\subsection{Systemic Inflammatory Response Syndrome
+(SIRS)}\label{systemic-inflammatory-response-syndrome-sirs}
+
+There are multiple levels to the SIRS schema {[}3,4{]} relating to the
+severity of the response. The first is the basic SIRS criteria which
+requires at least two of the following conditions:
+
+\begin{itemize}
+\tightlist
+\item
+  T \(<\) 36 \textdegree C or T \(>\) 38 \textdegree C,
+\item
+  Heart rate \(>\) 90,
+\item
+  Respiratory rate \(>\) 20,
+\item
+  White Blood Count \(>\) 12
+\end{itemize}
+
+The second level is the Sepsis Criteria (SIRS + Source of Infection)
+which has not yet been implemented in this study as it requires
+searching the free text progress notes.
+
+The third level is Severe Sepsis Criteria (Organ Dysfunction,
+Hypotension, or Hypoperfusion) which requires at least one of the
+following to be satisfied (we have excluded the drop in blood pressure
+as the patients being reviewed have just presented to the ED and usually
+only have one set of vital signs):
+
+\begin{itemize}
+\tightlist
+\item
+  Lactate Blood Gas \(>\) 4,
+\item
+  Systolic Blood Pressure \(\le\) 90.
+\end{itemize}
+
+\subsection{Adult Sepsis Pathway}\label{adult-sepsis-pathway}
+
+There are two pathways for flagging a patient as being at risk of Sepsis
+and requiring either review by a Senior Medical Officer or a Medical
+Emergency response. The Purple pathway is triggered if any of the
+patient's observations in the Rapid Detection and Response (RDR) are in
+the purple zone (Table \ref{tbl:table1}). The Red pathway is triggered
+if there are two or more red zone observations.
+
+\subsection{ICU Usage}\label{icu-usage}
+
+A stay in the ICU is identified by matching the patient's location to
+the ICU wards in the first episode of care (EoC) after inpatient
+admission. .
+
+\subsection{Mortality}\label{mortality}
+
+Mortality is measured using the patients date of death and the date/time
+of the presentation at the ED. The mortality is calculated for death as
+an inpatient and at after admission are.
+
+\subsection{Triage Category}\label{triage-category}
+
+We categorise the patients based on the the triage category assigned on
+presentation at the emergency department. Patients with Sepsis,
+especially this in triage category 3, 4 or 5 can have there triage
+classification changed if they deteriorate while waiting to be seen.
+
+\subsection{Waiting Times}\label{waiting-times}
+
+In order to understand the clinical workflow the various time stamps
+recorded in the ED status board will be analysed in order to measure the
+time waiting to be seen (`WTB'), the decision to admit, when ready for
+ward transfer.
+
+\subsection{Sepsis Patients}\label{sepsis-patients}
+
+The demographics for the 2023 training sample are given in Table
+\ref{tbl:demo_2023} amd for the 2024 validation data set in Table
+\ref{tbl:demo_2024} The metrics for the 2023 training sample are given
+in Table \ref{tbl:Metrics_2023} and for the 2024 validation sample Table
+\ref{tbl:Metrics_2024}. The outcomes for the 2023 training sample are
+give in Table \ref{tbl:Outcomes_2023} and for the 2024 validation sample
+Table \ref{tbl:Outcomes_2024}.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.2043}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.0753}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1613}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1505}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1075}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1828}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1183}}@{}}
+\caption{\label{tbl:demo_2023}Demographics of the patients diagnosed
+with sepsis in 2023 training sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Indigenous
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Female
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Indeterminate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Unknown
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Indigenous
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Female
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Indeterminate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Unknown
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 239 & 74.2 & 6 & 111 & 0 & 0 \\
+2 & 1235 & 71.9 & 41 & 552 & 0 & 0 \\
+3 & 945 & 70.7 & 41 & 451 & 0 & 0 \\
+4 & 133 & 66.2 & 5 & 68 & 0 & 0 \\
+5 & 5 & 42.4 & 2 & 2 & 0 & 0 \\
+Total/Mean & 2557 & 325 & 95 & 1184 & 0 & 0 \\
+\end{longtable}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.2043}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.0753}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1613}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1505}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1075}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1828}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1183}}@{}}
+\caption{\label{tbl:demo_2024}Demographics of the patients diagnosed
+with sepsis in 2024 validation sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Indigenous
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Female
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Indeterminate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Unknown
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Indigenous
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Female
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Indeterminate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Unknown
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 241 & 75.3 & 2 & 101 & 0 & 0 \\
+2 & 1210 & 71.9 & 44 & 451 & 0 & 0 \\
+3 & 838 & 70.1 & 32 & 344 & 0 & 0 \\
+4 & 157 & 69.8 & 11 & 61 & 0 & 0 \\
+Total/Mean & 2446 & 71.5 & 89 & 957 & 0 & 0 \\
+\end{longtable}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1319}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0486}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1042}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1944}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0972}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0903}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1042}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1250}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1042}}@{}}
+\caption{\label{tbl:Metrics_2023}Metrics for the for patients diagnosed
+with sepsis in 2023 training sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\textgreater2 vital signs available
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+qSOFA Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+SIRS Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+SIRS Severe
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Purple \textgreater0 Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Red \textgreater1 Flag
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\textgreater2 vital signs available
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+qSOFA Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+SIRS Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+SIRS Severe
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Purple \textgreater0 Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Red \textgreater1 Flag
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 239 & 74.2 & 239 & 142 & 132 & 45 & 80 & 34 \\
+2 & 1235 & 71.9 & 1235 & 458 & 711 & 163 & 246 & 162 \\
+3 & 945 & 70.7 & 945 & 171 & 484 & 52 & 74 & 52 \\
+4 & 133 & 66.2 & 133 & 12 & 57 & 1 & 10 & 6 \\
+5 & 5 & 42.4 & 5 & 0 & 1 & 0 & 0 & 0 \\
+Total/Mean & 2557 & 71.3 & 2557 & 783 & 1385 & 261 & 410 & 254 \\
+\end{longtable}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1319}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0486}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1042}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1944}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0972}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0903}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1042}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1250}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1042}}@{}}
+\caption{\label{tbl:Metrics_2024}Metrics for the for patients diagnosed
+with sepsis in 2024 validation sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\textgreater2 vital signs available
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+qSOFA Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+SIRS Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+SIRS Severe
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Purple \textgreater0 Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Red \textgreater1 Flag
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\textgreater2 vital signs available
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+qSOFA Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+SIRS Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+SIRS Severe
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Purple \textgreater0 Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Red \textgreater1 Flag
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 241 & 75.3 & 241 & 107 & 150 & 70 & 126 & 41 \\
+2 & 1210 & 71.9 & 1210 & 324 & 722 & 157 & 324 & 207 \\
+3 & 838 & 70.1 & 838 & 93 & 407 & 62 & 109 & 61 \\
+4 & 157 & 69.8 & 157 & 17 & 79 & 15 & 20 & 9 \\
+Total/Mean & 2446 & 71.5 & 2446 & 541 & 1358 & 304 & 579 & 318 \\
+\end{longtable}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1919}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.0707}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1515}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1212}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1414}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.3232}}@{}}
+\caption{\label{tbl:Outcomes_2023}Outcomes for the for patients
+diagnosed with sepsis in 2023 training sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+ICU Stay
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died as IP
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died 30 days after admission
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+ICU Stay
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died as IP
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died 30 days after admission
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 239 & 74.2 & 89 & 81 & 109 \\
+2 & 1235 & 71.9 & 400 & 208 & 292 \\
+3 & 945 & 70.7 & 247 & 135 & 176 \\
+4 & 133 & 66.2 & 39 & 23 & 26 \\
+5 & 5 & 42.4 & 2 & 0 & 0 \\
+Total/Mean & 2557 & 71.3 & 777 & 447 & 603 \\
+\end{longtable}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1919}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.0707}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1515}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1212}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1414}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.3232}}@{}}
+\caption{\label{tbl:Outcomes_2024}Outcomes for the for patients
+diagnosed with sepsis in 2024 validation sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+ICU Stay
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died as IP
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died 30 days after admission
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+ICU Stay
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died as IP
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died 30 days after admission
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 241 & 75.3 & 75 & 87 & 102 \\
+2 & 1210 & 71.9 & 344 & 206 & 232 \\
+3 & 838 & 70.1 & 227 & 126 & 135 \\
+4 & 157 & 69.8 & 39 & 15 & 21 \\
+Total/Mean & 2446 & 71.5 & 685 & 434 & 490 \\
+\end{longtable}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.2568}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1757}}@{}}
+\caption{\label{tbl:hospitals_2023}ED presentations for patients
+diagnosed with sepsis in 2023 training sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+FMC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+LMH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MPH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+NHS
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+QEH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+RAH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Row Total
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+FMC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+LMH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MPH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+NHS
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+QEH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+RAH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Row Total
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 75 & 79 & 10 & 1 & 44 & 30 & 239 \\
+2 & 251 & 301 & 59 & 10 & 206 & 408 & 1235 \\
+3 & 151 & 216 & 116 & 27 & 179 & 256 & 945 \\
+4 & 21 & 32 & 14 & 5 & 29 & 32 & 133 \\
+5 & 1 & 3 & 0 & 0 & 1 & 0 & 5 \\
+Total & 499 & 631 & 199 & 43 & 459 & 726 & 2557 \\
+\end{longtable}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.2568}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1757}}@{}}
+\caption{\label{tbl:hospitals_2024}ED presentations for patients
+diagnosed with sepsis in 2024 validation sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+FMC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+LMH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MPH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+NHS
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+QEH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+RAH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Row Total
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+FMC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+LMH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MPH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+NHS
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+QEH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+RAH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Row Total
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 93 & 41 & 10 & 3 & 60 & 34 & 241 \\
+2 & 263 & 283 & 78 & 20 & 225 & 341 & 1210 \\
+3 & 122 & 205 & 123 & 29 & 159 & 200 & 838 \\
+4 & 12 & 39 & 23 & 6 & 43 & 34 & 157 \\
+Total & 490 & 568 & 234 & 58 & 487 & 609 & 2446 \\
+\end{longtable}
+
+\newpage
+
+\subsubsection{Discharge Disposition of Sepsis
+Patients}\label{discharge-disposition-of-sepsis-patients}
+
+The discharge disposition from the ED of the patients diagnosed with
+Sepsis are listed in Tables \ref{tbl:Discharge_2023} \&
+\ref{tbl:Discharge_2024}. This shows the number of patients who are
+admitted directly as inpatients, who are admitted to the EECU and are
+transferred to another hospital, and those that died in the ED.
+
+In addition there is a small cohort of patients who were not admitted
+included as patients ``admitted'' with Sepsis (12 in 2023 and 16 in
+2024). This is caused by our journey definition. We have required the ED
+presentation to be the first in in a set of connected EoC. In this case
+the patient has represented at an ED within 6 hours of discharge and
+been admitted with Sepsis. We have used this journey definition so as
+not to double count patients who are transferred between hospitals.
+
+If we examine timelines of the patient journeys for patients who were
+not admitted from the ED (Fig. \ref{fig:non_admitted_timelines_2023}) we
+we find four of the 12 patients were admitted (three of which were
+hospital transfers). A similar analysis of the 2024 validation sample
+finds at least five of the 16 patients were admitted.
+
+\emph{Add patient timelines for some of these to the appendix}.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1111}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0409}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0877}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1287}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0994}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1754}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1754}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1053}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0760}}@{}}
+\caption{\label{tbl:Discharge_2023}Discharge Disposition for the for
+patients diagnosed with sepsis in 2023 training sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Admit as Inpatient
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Admit to EECU
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Transfer to Other Hospital
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Not admitted as inpatients
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died in the ED
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Row Total
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Admit as Inpatient
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Admit to EECU
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Transfer to Other Hospital
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Not admitted as inpatients
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died in the ED
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Row Total
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 239 & 74.2 & 230 & 5 & 4 & 0 & 0 & 239 \\
+2 & 1235 & 71.9 & 1152 & 37 & 40 & 6 & 0 & 1235 \\
+3 & 945 & 70.7 & 798 & 69 & 74 & 4 & 0 & 945 \\
+4 & 133 & 66.2 & 107 & 17 & 7 & 2 & 0 & 133 \\
+5 & 5 & 42.4 & 5 & 0 & 0 & 0 & 0 & 5 \\
+Total/Mean & 2557 & 71.3 & 2292 & 128 & 125 & 12 & 0 & 2557 \\
+\end{longtable}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1111}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0409}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0877}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1287}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0994}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1754}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1754}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1053}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0760}}@{}}
+\caption{\label{tbl:Discharge_2024}Discharge Disposition for the for
+patients diagnosed with sepsis in 2024 validation sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Admit as Inpatient
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Admit to EECU
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Transfer to Other Hospital
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Not admitted as inpatients
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died in the ED
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Row Total
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Admit as Inpatient
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Admit to EECU
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Transfer to Other Hospital
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Not admitted as inpatients
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died in the ED
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Row Total
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 241 & 75.3 & 229 & 7 & 5 & 0 & 0 & 241 \\
+2 & 1210 & 71.9 & 1111 & 39 & 53 & 7 & 0 & 1210 \\
+3 & 838 & 70.1 & 681 & 79 & 70 & 8 & 0 & 838 \\
+4 & 157 & 69.8 & 122 & 21 & 13 & 1 & 0 & 157 \\
+Total/Mean & 2446 & 71.5 & 2143 & 146 & 141 & 16 & 0 & 2446 \\
+\end{longtable}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio,alt={Journeys for patients diagnosed with sepsis with an ED discharge disposition consistent with not bing admitted in the 2023 training sample.}]{./figures/section_02/patient_timelines_not_admitted_2023.png}}
+\caption{Journeys for patients diagnosed with sepsis with an ED
+discharge disposition consistent with not bing admitted in the 2023
+training sample.}\label{fig:non_admitted_timelines_2023}
+\end{figure}
+
+\newpage
+
+\subsection{Patients without Sepsis}\label{patients-without-sepsis}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.2021}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.0851}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1596}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1489}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1064}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1809}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1170}}@{}}
+\caption{\label{tbl:demo_no_sepsis_2023}Demographics of the patients
+diagnosed with sepsis in 2023 training sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Indigenous
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Female
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Indeterminate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Unknown
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Indigenous
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Female
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Indeterminate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Unknown
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 3901 & 58 & 262 & 1796 & 0 & 2 \\
+2 & 54363 & 57.7 & 2573 & 26586 & 5 & 5 \\
+3 & 126945 & 54.9 & 6370 & 69688 & 23 & 6 \\
+4 & 64936 & 49 & 3726 & 35166 & 13 & 7 \\
+5 & 7894 & 43.8 & 600 & 3733 & 0 & 1 \\
+Total/Mean & 258039 & 263 & 13531 & 136969 & 41 & 21 \\
+\end{longtable}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.2021}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.0851}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1596}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1489}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1064}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1809}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1170}}@{}}
+\caption{\label{tbl:demo_no_sepsis_2024}Demographics of the patients
+diagnosed with sepsis in 2024 validation sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Indigenous
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Female
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Indeterminate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Unknown
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Indigenous
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Female
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Indeterminate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Unknown
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 3745 & 57.1 & 242 & 1332 & 0 & 3 \\
+2 & 53951 & 57.6 & 2401 & 21084 & 2 & 3 \\
+3 & 126441 & 55 & 5606 & 54120 & 17 & 4 \\
+4 & 68531 & 49.4 & 3434 & 27502 & 6 & 3 \\
+5 & 8480 & 43.9 & 593 & 2993 & 1 & 1 \\
+Total/Mean & 261148 & 53.7 & 12276 & 107031 & 26 & 14 \\
+\end{longtable}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1310}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0552}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1034}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1931}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0966}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0897}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1034}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1241}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1034}}@{}}
+\caption{\label{tbl:Metrics_no_sepsis_2023}Metrics for the for patients
+diagnosed with sepsis in 2023 training sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\textgreater2 vital signs available
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+qSOFA Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+SIRS Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+SIRS Severe
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Purple \textgreater0 Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Red \textgreater1 Flag
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\textgreater2 vital signs available
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+qSOFA Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+SIRS Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+SIRS Severe
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Purple \textgreater0 Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Red \textgreater1 Flag
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 3901 & 58 & 3901 & 687 & 1458 & 219 & 653 & 200 \\
+2 & 54363 & 57.7 & 54363 & 3185 & 15895 & 615 & 2799 & 1059 \\
+3 & 126945 & 54.9 & 126945 & 2653 & 29872 & 420 & 1997 & 725 \\
+4 & 64936 & 49 & 64936 & 422 & 11597 & 82 & 545 & 127 \\
+5 & 7894 & 43.8 & 7894 & 16 & 1347 & 2 & 43 & 10 \\
+Total/Mean & 258039 & 53.7 & 258039 & 6963 & 60169 & 1338 & 6037 &
+2121 \\
+\end{longtable}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1310}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0552}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1034}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1931}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0966}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0897}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1034}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1241}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1034}}@{}}
+\caption{\label{tbl:Metrics_no_sepsis_2024}Metrics for the for patients
+diagnosed with sepsis in 2024 validation sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\textgreater2 vital signs available
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+qSOFA Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+SIRS Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+SIRS Severe
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Purple \textgreater0 Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Red \textgreater1 Flag
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\textgreater2 vital signs available
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+qSOFA Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+SIRS Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+SIRS Severe
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Purple \textgreater0 Flag
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Red \textgreater1 Flag
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 3745 & 57.1 & 3745 & 399 & 1451 & 201 & 923 & 273 \\
+2 & 53951 & 57.6 & 53951 & 2058 & 15911 & 656 & 4093 & 1626 \\
+3 & 126441 & 55 & 126441 & 1571 & 29467 & 483 & 2355 & 874 \\
+4 & 68531 & 49.4 & 68531 & 285 & 12338 & 86 & 545 & 185 \\
+5 & 8480 & 43.9 & 8480 & 6 & 1476 & 4 & 35 & 16 \\
+Total/Mean & 261148 & 53.7 & 261148 & 4319 & 60643 & 1430 & 7951 &
+2974 \\
+\end{longtable}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1900}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.0800}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1500}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1200}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1400}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.3200}}@{}}
+\caption{\label{tbl:Outcomes_no_sepsis_2023}Outcomes for the for
+patients not diagnosed with sepsis in 2023 training
+sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+ICU Stay
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died as IP
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died 30 days after admission
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+ICU Stay
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died as IP
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died 30 days after admission
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 3901 & 58 & 422 & 183 & 394 \\
+2 & 54363 & 57.7 & 1106 & 726 & 1849 \\
+3 & 126945 & 54.9 & 851 & 633 & 2148 \\
+4 & 64936 & 49 & 142 & 95 & 387 \\
+5 & 7894 & 43.8 & 6 & 0 & 11 \\
+Total/Mean & 258039 & 53.7 & 2527 & 1637 & 4789 \\
+\end{longtable}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1900}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.0800}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1500}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1200}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1400}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.3200}}@{}}
+\caption{\label{tbl:Outcomes_no_sepsis_2024}Outcomes for the for
+patients not diagnosed with sepsis in 2024 validation
+sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+ICU Stay
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died as IP
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died 30 days after admission
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+ICU Stay
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died as IP
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died 30 days after admission
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 3745 & 57.1 & 312 & 198 & 304 \\
+2 & 53951 & 57.6 & 1060 & 690 & 1469 \\
+3 & 126441 & 55 & 800 & 641 & 1785 \\
+4 & 68531 & 49.4 & 123 & 93 & 379 \\
+5 & 8480 & 43.9 & 4 & 3 & 14 \\
+Total/Mean & 261148 & 53.7 & 2299 & 1625 & 3951 \\
+\end{longtable}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.2568}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1757}}@{}}
+\caption{\label{tbl:hospitals_no_sepsis_2023}ED presentations for
+patients not diagnosed with sepsis in 2023 training
+sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+FMC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+LMH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MPH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+NHS
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+QEH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+RAH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Row Total
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+FMC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+LMH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MPH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+NHS
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+QEH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+RAH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Row Total
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 1216 & 910 & 136 & 56 & 418 & 1165 & 3901 \\
+2 & 13323 & 11041 & 4277 & 3991 & 5536 & 16195 & 54363 \\
+3 & 25718 & 21568 & 14875 & 13752 & 19051 & 31981 & 126945 \\
+4 & 10627 & 12288 & 6281 & 9984 & 11947 & 13809 & 64936 \\
+5 & 1210 & 2836 & 502 & 1092 & 555 & 1699 & 7894 \\
+Total & 52094 & 48643 & 26071 & 28875 & 37507 & 64849 & 258039 \\
+\end{longtable}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.2568}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0946}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1757}}@{}}
+\caption{\label{tbl:hospitals_no_sepsis_2024}ED presentations for
+patients not diagnosed with sepsis in 2024 validation
+sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+FMC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+LMH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MPH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+NHS
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+QEH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+RAH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Row Total
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+FMC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+LMH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MPH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+NHS
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+QEH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+RAH
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Row Total
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 1104 & 645 & 141 & 129 & 558 & 1168 & 3745 \\
+2 & 14287 & 10055 & 4313 & 3836 & 5613 & 15847 & 53951 \\
+3 & 24700 & 20873 & 17377 & 13302 & 19625 & 30564 & 126441 \\
+4 & 9911 & 14281 & 7913 & 10058 & 14007 & 12361 & 68531 \\
+5 & 1049 & 3212 & 890 & 1384 & 689 & 1256 & 8480 \\
+Total & 51051 & 49066 & 30634 & 28709 & 40492 & 61196 & 261148 \\
+\end{longtable}
+
+\newpage
+
+\subsubsection{Discharge Disposition of Patients without
+Sepsis}\label{discharge-disposition-of-patients-without-sepsis}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1105}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0465}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0872}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1279}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0988}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1744}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1744}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1047}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0756}}@{}}
+\caption{\label{tbl:Discharge_not_sepsis_2023}Discharge Disposition for
+the for patients not diagnosed with sepsis in 2023 training
+sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Admit as Inpatient
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Admit to EECU
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Transfer to Other Hospital
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Not admitted as inpatients
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died in the ED
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Row Total
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Admit as Inpatient
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Admit to EECU
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Transfer to Other Hospital
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Not admitted as inpatients
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died in the ED
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Row Total
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 3901 & 58 & 2471 & 400 & 52 & 960 & 15 & 3898 \\
+2 & 54363 & 57.7 & 21150 & 8340 & 1399 & 23271 & 38 & 54198 \\
+3 & 126945 & 54.9 & 33495 & 19663 & 2607 & 70100 & 18 & 125883 \\
+4 & 64936 & 49 & 8943 & 6863 & 712 & 46164 & 1 & 62683 \\
+5 & 7894 & 43.8 & 565 & 371 & 38 & 6320 & 0 & 7294 \\
+Total/Mean & 258039 & 53.7 & 66624 & 35637 & 4808 & 146815 & 72 &
+253956 \\
+\end{longtable}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1105}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0465}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0872}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1279}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0988}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1744}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1744}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1047}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0756}}@{}}
+\caption{\label{tbl:Discharge_not_sepsis_2024}Discharge Disposition for
+the for patients not diagnosed with sepsis in 2024 validation
+sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Admit as Inpatient
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Admit to EECU
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Transfer to Other Hospital
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Not admitted as inpatients
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died in the ED
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Row Total
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Triage Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EoC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Average Age
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Admit as Inpatient
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Admit to EECU
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Transfer to Other Hospital
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Not admitted as inpatients
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Died in the ED
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Row Total
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 3745 & 57.1 & 2223 & 543 & 93 & 859 & 18 & 3736 \\
+2 & 53951 & 57.6 & 21128 & 10441 & 1486 & 20722 & 28 & 53805 \\
+3 & 126441 & 55 & 31544 & 23671 & 2897 & 66744 & 25 & 124881 \\
+4 & 68531 & 49.4 & 8902 & 8787 & 907 & 46915 & 1 & 65512 \\
+5 & 8480 & 43.9 & 511 & 488 & 48 & 6744 & 0 & 7791 \\
+Total/Mean & 261148 & 53.7 & 64308 & 43930 & 5431 & 141984 & 72 &
+255725 \\
+\end{longtable}
+
+\newpage
+
+\section{Machine Learning}\label{machine-learning}
+
+The data described in the earlier section is used to train and validate
+diagnosis classifier models Sepsis. The data is prepared by setting any
+missing measurement from in the data set with the defaults listed in
+Table \ref{tbl:defaults}. Numerical variables are transformed on to the
+range \([0,1]\). Categorical values are passed through the One Hot
+Encoder algorithm {[}6{]} to turn them into a complete set of logical
+variables.
+
+The data set is split into training and validation sets using an 80:20\%
+split. An XG Boost model {[}7{]} is optimised by randomly scanning
+through the possible model settings and minimising the false positive
+rate for a true positive rate of 85\%. The optimized model is then
+tested on the validation samples.
+
+\begin{longtable}[]{@{}lr@{}}
+\caption{\label{tbl:defaults}Data used in the ML models. If no result
+has been recorded the default value is assigned. If the default is NA
+(not applicable) then there is no default value.}\tabularnewline
+\toprule\noalign{}
+Property or Result & Default \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+Property or Result & Default \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Age & NA \\
+Sex & NA \\
+Respiration (breaths/min) & 15 \\
+O2 Saturation (\%) & 98 \\
+Blood Pressure Systolic (mm Hg) & 120 \\
+Pulse Rate (beats/min) & 80 \\
+Temperature (ºC) & 37.5 \\
+Level of Consciousness & 0 \\
+\end{longtable}
+
+\subsection{ML Metrics}\label{ml-metrics}
+
+Standard machine learning quality metrics are calculated where \(N\) is
+the size of the cohort, \(\text{TP}\) is the number of true positives,
+\(\text{TN}\) is the number if true negatives, \(\text{FP}\) is the
+number of false positives, \(\text{TN}\) is the number if false
+negatives, \(N_{\text{sepsis}}\) is the number of patients with a sepsis
+diagnosis and \(N_{\text{not sepsis}} =
+N-N_{\text{sepsis}}\) is the number of patients who do not have sepsis:
+
+\begin{equation}\protect\phantomsection\label{eq:accuracy}{\text{Accuracy} = A = \frac{\text{TP} +\text{TN}}{N}}\end{equation}
+\begin{equation}\protect\phantomsection\label{eq:precision}{\text{Precision} = P = \frac{\text{TP}}{\text{TP} + \text{FP}}}\end{equation}
+\begin{equation}\protect\phantomsection\label{eq:recall}{\text{Recall} = R = \frac{\text{TP}}{\text{TP} + \text{FN}}}\end{equation}
+\begin{equation}\protect\phantomsection\label{eq:f1}{F_{1} = \frac{2 P R}{P+R}}\end{equation}
+\begin{equation}\protect\phantomsection\label{eq:sensitivity}{\text{Sensitivity} =  = \frac{\text{TP}}{N_{\text{sepsis}}}}\end{equation}
+\begin{equation}\protect\phantomsection\label{eq:specificity}{\text{Specificity} = A = \frac{\text{TN}}{N_{\text{not sepsis}}}}\end{equation}
+
+\subsection{Variation Across
+Subgroups}\label{variation-across-subgroups}
+
+The performance of the ML model for different subgroups of the patient
+cohort will be verified for - the patient's gender, - indigenous status,
+- the hospital, - age groups, - triage categories. The true positive and
+true negative rates will be compared across these subgroups.
+
+\subsection{Optimisation}\label{optimisation}
+
+Several strategies for optimising the ML model will be explored.
+
+The first will be the cohort composition and will compare patients with
+a minimum of three of the following vital signs are recorded in the EMR
+during the presentation: respiration, O\textsubscript{2} Saturation,
+systolic blood pressure, pulse rate and temperature and patients where
+all five are recorded.
+
+The second will look at variations in the data included in the model.
+For example is the patients age included, do we use the
+O\textsubscript{2} flow to create a categorical true false value etc.
+
+The third variation will be the variable used in fitting the model. The
+variables to be optimized are: - minimising the false positive rate for
+a true positive rate of 85\%, - maximising the sensitivity for a
+specificity of 95\%.
+
+\newpage
+
+\section{Appendices}\label{appendices}
+
+\subsection{Patient Journey}\label{sec:Journey}
+
+Descriptions and variable names listed below are based on the SA Health
+EMR. Episodes of Care are joined into a journey if they meet the
+following criteria. If the value is set to zero, the EoC is part of the
+same journey.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Check if the previous CHARTGUID entry (for the same\\
+  CLIENTGUID order by discharge datetime) is the same as the current
+  CHARTGUID.\\
+  If yes, set the value to 0.
+\item
+  Check if the time difference between the previous discharge datetime
+  (for the same) and current admission datetime is within 6 hours
+  (either before or after).\\
+  If yes, set the value to 0.
+\item
+  Check if the time difference between the previous discharge datetime
+  (for the same CLIENTGUID) and current admission datetime is within 24
+  hours (either before or after) and the
+  `previous\_discharge\_disposition' (for the same CLIENTGUID order by
+  admission datetime) is in this list (`IP Other hosp - Down', `IP Other
+  hosp - Up', `IP Other Hospital - DOWN',`IP Other Hospital - UP').\\
+  If yes, set the value to 0.
+\item
+  Check if the previous discharge datetime (for the same CLIENTGUID
+  order by discharge datetime) is before the current admission datetime
+  and the previous admission datetime (for the same CLIENTGUID order by
+  admission datetime) date is after the current admission datetime.\\
+  If yes, set the value to 0.
+\item
+  Check if the time difference between the previous discharge datetime
+  (for the same CLIENTGUID order by admission datetime) and current
+  admission datetime is within 24 hours (either before or after) and the
+  previous episode\_of\_care(for the same CLIENTGUID order by admission
+  datetime) is `Rehabilitation' and the current episode\_of\_care is
+  `Hospital at Home - Rehab at Home'.\\
+  If yes, set the value to 0.
+\item
+  Check if the time difference between the previous admission datetime
+  (for the same CLIENTGUID order by admission datetime) and current
+  admission datetime is within 24 hours (either before or after) and the
+  previous TYPECODE (for the same CLIENTGUID order by admitdate asc) is
+  `Emergency' and the current source\_of\_referral is `IP
+  Casualty-Emergency' and the current TYPECODE is `Inpatient'.\\
+  If yes, set the value to 0.
+\end{enumerate}
+
+If none of the above conditions are met start a new journey.
+
+\newpage
+
+\subsection{Sepsis ICD-10 Codes}\label{sepsis-icd-10-codes}
+
+\begin{longtable}[]{@{}
+  >{\centering\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.1094}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.3906}}
+  >{\centering\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.1094}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.3906}}@{}}
+\caption{\label{tbl:tableicd-10}Sepsis Diagnosis Codes (from APC
+Reference Table\_corrected - ICD-10-AM 11th edition
+2019)}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\centering
+Code
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Diagnosis
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Code
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Diagnosis
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\centering
+Code
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Diagnosis
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Code
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Diagnosis
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+A021 & Salmonella sepsis & A412 & Sepsis due to unsp staphylococcus \\
+A227 & Anthrax sepsis & A413 & Sepsis dt Haemophilus influenzae \\
+A267 & Erysipelothrix sepsis & A414 & Sepsis due to anaerobes \\
+A327 & Listerial sepsis & A415 & Sepsis dt oth \& unsp gram neg
+organisms \\
+A40 & Streptococcal sepsis & A4150 & Sepsis dt unsp Gram neg
+organisms \\
+A400 & Sepsis dt streptococcus group A & A4151 & Sepsis dt Escherichia
+coli {[}E coli{]} \\
+A401 & Sepsis dt streptococcus group B & A4152 & Sepsis due to
+Pseudomonas \\
+A402 & Sepsis dt streptococcus grp D \& enteroc & A4158 & Sepsis dt
+other gram neg organisms \\
+A403 & Sepsis dt Streptococcus pneumoniae & A418 & Other specified
+sepsis \\
+A408 & Other streptococcal sepsis & A419 & Sepsis, unspecified \\
+A409 & Streptococcal sepsis unspecified & A427 & Actinomycotic sepsis \\
+A41 & Other sepsis & B377 & Candidal sepsis \\
+A410 & Sepsis due to Staphylococcus aureus & O85 & Puerperal sepsis \\
+A411 & Sepsis dt other spec staphylococcus & & \\
+\end{longtable}
+
+\newpage
+\blandscape
+
+\subsection{ICD-10 Breakdown of
+Samples}\label{icd-10-breakdown-of-samples}
+
+\footnotesize
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0804}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0670}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1339}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0804}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0670}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.2143}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0804}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0670}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.2098}}@{}}
+\caption{\label{tbl:table-verification_2023-icd10}ICD-10 Codes for the
+2023 Training data sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Top Level
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Number
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Decsription
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+2nd Level
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Number
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+3rd Level
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Number
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Top Level
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Number
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Decsription
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+2nd Level
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Number
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+3rd Level
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Number
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+A02.1 & 5 & Salmonella sepsis & & & & & & \\
+A40 & 197 & Streptococcal sepsis & A40.0 & 38 & Sepsis dt streptococcus
+group A & & & \\
+& & & A40.1 & 25 & Sepsis dt streptococcus group B & & & \\
+& & & A40.2 & 52 & Sepsis dt streptococcus group D & & & \\
+& & & A40.3 & 22 & Sepsis dt Streptococcus pneumoniae & & & \\
+& & & A40.8 & 61 & Other streptococcal sepsis & & & \\
+& & & A40.9 & 4 & Streptococcal sepsis unspecified & & & \\
+A41 & 2349 & Other sepsis & A41.0 & 106 & Sepsis due to Staphylococcus
+aureus & & & \\
+& & & A41.1 & 39 & Sepsis dt other spec staphylococcus & & & \\
+& & & A41.2 & 8 & Sepsis due to unsp staphylococcus & & & \\
+& & & A41.3 & 2 & Sepsis dt Haemophilus influenzae & & & \\
+& & & A41.4 & 14 & Sepsis due to anaerobes & & & \\
+& & & A41.5 & 405 & Sepsis dt oth \& unsp gram neg organisms & A41.50 &
+12 & Sepsis dt unsp Gram neg organisms \\
+& & & & & & A41.51 & 262 & Sepsis dt Escherichia coli (E coli) \\
+& & & & & & A41.52 & 45 & Sepsis due to Pseudomonas \\
+& & & & & & A41.58 & 100 & Sepsis dt other gram neg organisms \\
+& & & A41.8 & 86 & Other specified sepsis & & & \\
+& & & A41.9 & 1710 & Sepsis, unspecified & & & \\
+A42.7 & 1 & Actinomycotic sepsis & & & & & & \\
+B37.7 & 22 & Candidal sepsis & & & & & & \\
+O85 & 11 & Puerperal sepsis & & & & & & \\
+\end{longtable}
+
+\newpage
+
+\footnotesize
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0696}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0506}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1456}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0696}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0506}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.2595}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0696}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0506}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.2342}}@{}}
+\caption{\label{tbl:table-verification_2024-icd10}ICD-10 Codes for the
+2024 Verification data sample}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Top Level
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Number
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Decsription
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+2nd Level
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Number
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+3rd Level
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Number
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Top Level
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Number
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Decsription
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+2nd Level
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Number
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+3rd Level
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Number
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+A02.1 & 4 & Salmonella sepsis & & & & & & \\
+A40 & 186 & Streptococcal sepsis & A40.0 & 25 & Sepsis dt streptococcus
+group A & & & \\
+& & & A40.1 & 29 & Sepsis dt streptococcus group B & & & \\
+& & & A40.2 & 46 & Sepsis dt streptococcus group D & & & \\
+& & & A40.3 & 31 & Sepsis dt Streptococcus pneumoniae & & & \\
+& & & A40.8 & 47 & Other streptococcal sepsis & & & \\
+& & & A40.9 & 13 & Streptococcal sepsis unspecified & & & \\
+A41 & 2256 & Other sepsis & A41.0 & 97 & Sepsis due to Staphylococcus
+aureus & & & \\
+& & & A41.1 & 37 & Sepsis dt other spec staphylococcus & & & \\
+& & & A41.2 & 2 & Sepsis due to unsp staphylococcus & & & \\
+& & & A41.3 & 1 & Sepsis dt Haemophilus influenzae & & & \\
+& & & A41.4 & 9 & Sepsis due to anaerobes & & & \\
+& & & A41.5 & 349 & Sepsis dt oth \& unsp gram neg organisms & A41.50 &
+9 & Sepsis dt unsp Gram neg organisms \\
+& & & & & & A41.51 & 234 & Sepsis dt Escherichia coli (E coli) \\
+& & & & & & A41.52 & 27 & Sepsis due to Pseudomonas \\
+& & & & & & A41.58 & 86 & Sepsis dt other gram neg organisms \\
+& & & A41.8 & 70 & Other specified sepsis & & & \\
+& & & A41.9 & 1698 & Sepsis, unspecified & & & \\
+A42.7 & 0 & Actinomycotic sepsis & & & & & & \\
+B37.7 & 16 & Candidal sepsis & & & & & & \\
+O85 & 9 & Puerperal sepsis & & & & & & \\
+\end{longtable}
+
+\elandscape
+\normalsize
+
+\newpage
+
+\section{SQL Commands}\label{sql-commands}
+
+\subsection{ED Presentations}\label{ed-presentations}
+
+\begin{lstlisting}[language=SQL]
+create or replace view DEV_DAP_CAE05_DB.SEPSIS.VW_ED_VISIT()
+as SELECT * FROM (
+SELECT ROW_NUMBER() OVER (PARTITION BY JOURNEY_ID ORDER BY ADMITDTM) ED_SEQ_BY_JOURNEY,
+* FROM (
+SELECT * FROM DEV_DAP_CAE05_DB.JNY.TB_PATIENT_JOURNEY_MAPPING_NEW  AS VISIT
+WHERE visit.HOSPITAL IN (SELECT * FROM DEV_DAP_CAE05_DB.SEPSIS.VW_CONFIG_HOSPITAL)
+AND TYPECODE = 'Emergency'
+AND AGEONADMIT > 15
+AND VISIT.ADMITDTM between '2023-01-01'  and DATEADD(month,-1,to_date(getdate()))))
+WHERE ED_SEQ_BY_JOURNEY=1
+\end{lstlisting}
+
+\newpage
+
+\section*{References}\label{references}
+\addcontentsline{toc}{section}{References}
+
+\protect\phantomsection\label{refs}
+\begin{CSLReferences}{0}{1}
+\bibitem[\citeproctext]{ref-RDR}
+\CSLLeftMargin{1. }%
+\CSLRightInline{Sunrise EMR \& PAS deteriorating patient reference guide
+(July 2024). Available at:
+\url{https://inside.sahealth.sa.gov.au/wps/wcm/connect/non-public+content/sa+health+intranet/it+systems/sunrise/resources/sunrise+deteriorating+patient+reference+guide}.}
+
+\bibitem[\citeproctext]{ref-10.1001ux2fjama.2016.0288}
+\CSLLeftMargin{2. }%
+\CSLRightInline{Seymour, C.W., Liu, V.X., Iwashyna, T.J., Brunkhorst,
+F.M., Rea, T.D., Scherag, A., Rubenfeld, G., Kahn, J.M., Shankar-Hari,
+M., Singer, M., \emph{et al.} (2016). Assessment of clinical criteria
+for sepsis: For the third international consensus definitions for sepsis
+and septic shock (sepsis-3). JAMA \emph{315}, 762--774. Available at:
+\url{https://doi.org/10.1001/jama.2016.0288}.}
+
+\bibitem[\citeproctext]{ref-BONE19921644}
+\CSLLeftMargin{3. }%
+\CSLRightInline{Bone, R.C., Balk, R.A., Cerra, F.B., Dellinger, R.P.,
+Fein, A.M., Knaus, W.A., Schein, R.M.H., and Sibbald, W.J. (1992).
+Definitions for sepsis and organ failure and guidelines for the use of
+innovative therapies in sepsis. Chest \emph{101}, 1644--1655. Available
+at:
+\url{https://www.sciencedirect.com/science/article/pii/S001236921638415X}.}
+
+\bibitem[\citeproctext]{ref-Evans2021}
+\CSLLeftMargin{4. }%
+\CSLRightInline{Evans, L., Rhodes, A., Alhazzani, W., Antonelli, M.,
+Coopersmith, C.M., French, C., Machado, F.R., Mcintyre, L., Ostermann,
+M., Prescott, H.C., \emph{et al.} (2021). Surviving sepsis campaign:
+International guidelines for management of sepsis and septic shock 2021.
+Intensive Care Medicine \emph{47}, 1181--1247. Available at:
+\url{https://doi.org/10.1007/s00134-021-06506-y}.}
+
+\bibitem[\citeproctext]{ref-OneHotEncoder}
+\CSLLeftMargin{5. }%
+\CSLRightInline{Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V.,
+Thirion, B., Grisel, O., Blondel, M., Prettenhofer, P., Weiss, R.,
+Dubourg, V., \emph{et al.} (2025). OneHotEncoder. Available at:
+\url{https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html}
+{[}Accessed July 29, 2025{]}.}
+
+\bibitem[\citeproctext]{ref-scikit-learn}
+\CSLLeftMargin{6. }%
+\CSLRightInline{Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V.,
+Thirion, B., Grisel, O., Blondel, M., Prettenhofer, P., Weiss, R.,
+Dubourg, V., \emph{et al.} (2011). Scikit-learn: Machine learning in
+{P}ython. Journal of Machine Learning Research \emph{12}, 2825--2830.}
+
+\bibitem[\citeproctext]{ref-DBLP:journalsux2fcorrux2fChenG16}
+\CSLLeftMargin{7. }%
+\CSLRightInline{Chen, T., and Guestrin, C. (2016). XGBoost: {A} scalable
+tree boosting system. CoRR \emph{abs/1603.02754}. Available at:
+\url{http://arxiv.org/abs/1603.02754}.}
+
+\end{CSLReferences}
+
+\end{document}

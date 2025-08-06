@@ -1,0 +1,702 @@
+%%
+% Copyright (c) 2017 - 2025, Pascal Wagler;
+% Copyright (c) 2014 - 2025, John MacFarlane
+%
+% All rights reserved.
+%
+% Redistribution and use in source and binary forms, with or without
+% modification, are permitted provided that the following conditions
+% are met:
+%
+% - Redistributions of source code must retain the above copyright
+% notice, this list of conditions and the following disclaimer.
+%
+% - Redistributions in binary form must reproduce the above copyright
+% notice, this list of conditions and the following disclaimer in the
+% documentation and/or other materials provided with the distribution.
+%
+% - Neither the name of John MacFarlane nor the names of other
+% contributors may be used to endorse or promote products derived
+% from this software without specific prior written permission.
+%
+% THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+% "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+% LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+% FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+% COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+% INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+% BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+% LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+% CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+% LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+% ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+% POSSIBILITY OF SUCH DAMAGE.
+%%
+
+%%
+% This is the Eisvogel pandoc LaTeX template.
+%
+% For usage information and examples visit the official GitHub page:
+% https://github.com/Wandmalfarbe/pandoc-latex-template
+%%
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names,table}{xcolor}
+\documentclass[
+  a4paper,
+  ,captions=tableheading
+]{scrartcl}
+\usepackage{xcolor}
+\usepackage[left=1cm,right=1cm,top=2.6cm,bottom=3.25cm]{geometry}
+\usepackage{amsmath,amssymb}
+
+
+% add backlinks to footnote references, cf. https://tex.stackexchange.com/questions/302266/make-footnote-clickable-both-ways
+\usepackage{footnotebackref}
+\setcounter{secnumdepth}{5}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+
+% Use setspace anyway because we change the default line spacing.
+% The spacing is changed early to affect the titlepage and the TOC.
+\usepackage{setspace}
+\setstretch{1.2}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
+  \fi
+  % set entry spacing
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\makeatletter
+\@ifpackageloaded{subfig}{}{\usepackage{subfig}}
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\captionsetup[subfloat]{margin=0.5em}
+\AtBeginDocument{%
+\renewcommand*\figurename{Figure}
+\renewcommand*\tablename{Table}
+}
+\AtBeginDocument{%
+\renewcommand*\listfigurename{List of Figures}
+\renewcommand*\listtablename{List of Tables}
+}
+\newcounter{pandoccrossref@subfigures@footnote@counter}
+\newenvironment{pandoccrossrefsubfigures}{%
+\setcounter{pandoccrossref@subfigures@footnote@counter}{0}
+\begin{figure}\centering%
+\gdef\global@pandoccrossref@subfigures@footnotes{}%
+\DeclareRobustCommand{\footnote}[1]{\footnotemark%
+\stepcounter{pandoccrossref@subfigures@footnote@counter}%
+\ifx\global@pandoccrossref@subfigures@footnotes\empty%
+\gdef\global@pandoccrossref@subfigures@footnotes{{##1}}%
+\else%
+\g@addto@macro\global@pandoccrossref@subfigures@footnotes{, {##1}}%
+\fi}}%
+{\end{figure}%
+\addtocounter{footnote}{-\value{pandoccrossref@subfigures@footnote@counter}}
+\@for\f:=\global@pandoccrossref@subfigures@footnotes\do{\stepcounter{footnote}\footnotetext{\f}}%
+\gdef\global@pandoccrossref@subfigures@footnotes{}}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\makeatother
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\definecolor{default-linkcolor}{HTML}{A50000}
+\definecolor{default-filecolor}{HTML}{A50000}
+\definecolor{default-citecolor}{HTML}{4077C0}
+\definecolor{default-urlcolor}{HTML}{4077C0}
+
+\hypersetup{
+  pdftitle={SALIENT: ED Machine Learning Sepsis Prediction},
+  pdfauthor={Iain A Bertram,},
+  hidelinks,
+  breaklinks=true,
+  pdfcreator={LaTeX via pandoc with the Eisvogel template}}
+
+\title{SALIENT: ED Machine Learning Sepsis Prediction}
+\author{Iain A Bertram,}
+\date{11 July 2025}
+
+\usepackage[pages=all]{background}
+
+%
+% for the background color of the title page
+%
+\usepackage{pagecolor}
+\usepackage{afterpage}
+\usepackage{tikz}
+
+%
+% break urls
+%
+\PassOptionsToPackage{hyphens}{url}
+
+%
+% When using babel or polyglossia with biblatex, loading csquotes is recommended
+% to ensure that quoted texts are typeset according to the rules of your main language.
+%
+\usepackage{csquotes}
+
+%
+% captions
+%
+\definecolor{caption-color}{HTML}{777777}
+\usepackage[font={stretch=1.2}, textfont={color=caption-color}, position=top, skip=4mm, labelfont=bf, singlelinecheck=false, justification=raggedright]{caption}
+\setcapindent{0em}
+
+%
+% blockquote
+%
+\definecolor{blockquote-border}{RGB}{221,221,221}
+\definecolor{blockquote-text}{RGB}{119,119,119}
+\usepackage{mdframed}
+\newmdenv[rightline=false,bottomline=false,topline=false,linewidth=3pt,linecolor=blockquote-border,skipabove=\parskip]{customblockquote}
+\renewenvironment{quote}{\begin{customblockquote}\list{}{\rightmargin=0em\leftmargin=0em}%
+\item\relax\color{blockquote-text}\ignorespaces}{\unskip\unskip\endlist\end{customblockquote}}
+
+%
+% Source Sans Pro as the default font family
+% Source Code Pro for monospace text
+%
+% 'default' option sets the default
+% font family to Source Sans Pro, not \sfdefault.
+%
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+    \usepackage[default]{sourcesanspro}
+  \usepackage{sourcecodepro}
+  \else % if not pdftex
+    \usepackage[default]{sourcesanspro}
+  \usepackage{sourcecodepro}
+
+  % XeLaTeX specific adjustments for straight quotes: https://tex.stackexchange.com/a/354887
+  % This issue is already fixed (see https://github.com/silkeh/latex-sourcecodepro/pull/5) but the
+  % fix is still unreleased.
+  % TODO: Remove this workaround when the new version of sourcecodepro is released on CTAN.
+  \ifxetex
+    \makeatletter
+    \defaultfontfeatures[\ttfamily]
+      { Numbers   = \sourcecodepro@figurestyle,
+        Scale     = \SourceCodePro@scale,
+        Extension = .otf }
+    \setmonofont
+      [ UprightFont    = *-\sourcecodepro@regstyle,
+        ItalicFont     = *-\sourcecodepro@regstyle It,
+        BoldFont       = *-\sourcecodepro@boldstyle,
+        BoldItalicFont = *-\sourcecodepro@boldstyle It ]
+      {SourceCodePro}
+    \makeatother
+  \fi
+  \fi
+
+%
+% heading color
+%
+\definecolor{heading-color}{RGB}{40,40,40}
+\addtokomafont{section}{\color{heading-color}}
+% When using the classes report, scrreprt, book,
+% scrbook or memoir, uncomment the following line.
+%\addtokomafont{chapter}{\color{heading-color}}
+
+%
+% variables for title, author and date
+%
+\usepackage{titling}
+\title{SALIENT: ED Machine Learning Sepsis Prediction}
+\author{Iain A Bertram,}
+\date{11 July 2025}
+
+%
+% tables
+%
+
+\definecolor{table-row-color}{HTML}{F5F5F5}
+\definecolor{table-rule-color}{HTML}{999999}
+
+%\arrayrulecolor{black!40}
+\arrayrulecolor{table-rule-color}     % color of \toprule, \midrule, \bottomrule
+\setlength\heavyrulewidth{0.3ex}      % thickness of \toprule, \bottomrule
+\renewcommand{\arraystretch}{1.3}     % spacing (padding)
+
+
+%
+% remove paragraph indentation
+%
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+
+%
+%
+% Listings
+%
+%
+
+
+%
+% header and footer
+%
+\usepackage[headsepline]{scrlayer-scrpage}
+
+\newpairofpagestyles{eisvogel-header-footer}{
+  \clearpairofpagestyles
+  \ihead*{\hspace{1cm}}
+  \chead*{OFFICIAL: Sensitive}
+  \ohead*{Page \thepage}
+  \ifoot*{\hspace{1cm}}
+  \cfoot*{Version 0.1}
+  \ofoot*{\hspace{1cm}}
+  \addtokomafont{pageheadfoot}{\upshape}
+}
+\pagestyle{eisvogel-header-footer}
+
+
+\backgroundsetup{
+scale=1,
+color=black,
+opacity=0.5,
+angle=0,
+contents={%
+  \includegraphics[width=\paperwidth,height=\paperheight]{headers.pdf}
+  }%
+}
+
+%
+% Define watermark
+%
+
+\begin{document}
+
+\begin{titlepage}
+\newgeometry{top=2cm, right=4cm, bottom=3cm, left=4cm}
+\tikz[remember picture,overlay] \node[inner sep=0pt] at (current page.center){\includegraphics[width=\paperwidth,height=\paperheight]{Doc2.pdf}};
+\newcommand{\colorRule}[3][black]{\textcolor[HTML]{#1}{\rule{#2}{#3}}}
+\begin{flushleft}
+\noindent
+\\[-1em]
+\color[HTML]{FFFFFF}
+\makebox[0pt][l]{\colorRule[360049]{1.3\textwidth}{0pt}}
+\par
+\noindent
+
+% The titlepage with a background image has other text spacing and text size
+{
+  \setstretch{2}
+  \vfill
+  \vskip -8em
+  \noindent {\huge \textbf{\textsf{SALIENT: ED Machine Learning Sepsis
+Prediction}}}
+    \vskip 2em
+  \noindent {\Large \textsf{Iain A Bertram,} \vskip 0.6em \textsf{11
+July 2025}}
+  \vfill
+}
+
+
+\end{flushleft}
+\end{titlepage}
+\restoregeometry
+\pagenumbering{arabic}
+
+% don't generate the default title
+% \maketitle
+
+
+\section{About this document}\label{about-this-document}
+
+This technical document has been developed as part of the `Gen Med
+Project' by the Commission on Excellence and Innovation in Health
+(CEIH). The project forms part of a program of work that is funded
+through the Acute Models of Care Grant 2022 by the Medical Research
+Future Fund (MRFF). The project's primary goal is to reduce unwarranted
+clinical variation in general medicine, using a data analytics and
+machine learning approach.
+
+Sepsis was identified as a focus area from early analysis that looked at
+high bed day consumption and high opportunity Diagnosis Related Groups
+(DRGs) that included shortness of breath as a symptom.
+
+\section{Document Revisions}\label{document-revisions}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.1739}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2464}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2899}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2899}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+No.
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Date
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Person
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0.1 & 30/10/24 & First Draft Document describing the ED Sepsis
+Presentation ML model, and the various verification requirements for the
+model. & Iain Bertram \\
+& & & \\
+& & & \\
+\end{longtable}
+
+\pagebreak
+
+\section{Introduction}\label{introduction}
+
+A new adult sepsis pathway has been proposed for use with public
+hospitals within South Australia. This pathway is intended to identify
+patients who are at risk of developing Sepsis and initiating a
+standardised treatment programme. The patients are identified using
+Rapid Detection and Response (RDR) Observation Charts as implemented
+within the public hospital Electronic Medical Record (EMR) using the
+Sunrise Deteriorating Patient Reference Guide {[}1{]}.
+
+There are two pathways for flagging a patient as being at risk of Sepsis
+and requiring either review by a Senior Medical Officer or a Medical
+Emergency response. The Purple pathway is triggered if any of the
+patient's observations in the Rapid Detection and Response (RDR) are in
+the purple zone (Table \ref{tbl:table1}). The Red pathway is triggered
+if there are two or more red zone observations.
+
+This report describes the development of a Machine Learning (ML) model
+that can be used in place of these pathways. I.e. to develop machine
+learning models that identify people who will be admitted to hospital
+and will have a sepsis diagnosis (based on ICD-10 codes) on inpatient
+discharge based on measurement of the patient's vital signs.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.3200}}
+  >{\centering\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1200}}
+  >{\centering\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.0960}}
+  >{\centering\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1200}}
+  >{\centering\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1200}}
+  >{\centering\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1040}}
+  >{\centering\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1200}}@{}}
+\caption{\label{tbl:table1}Rapid Detection and Response (RDR) Alert
+Triggers}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Measure
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Purple
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Red
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Yellow
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Yellow
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Red
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Purple
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Measure
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Purple
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Red
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Yellow
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Yellow
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Red
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Purple
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+& & Low & & & High & \\
+Respiration (breaths/min) & 7 & & 10 & 21 & 26 & 31 \\
+O\textsubscript{2} Saturation (\%) & 88 & 91 & 94 & NA & NA & NA \\
+O\textsubscript{2} Flow (L/min) & NA & NA & NA & 5 & 7 & 8 \\
+Blood Pressure Systolic (mm Hg) & 89 & 99 & NA & 170 & 180 & 200 \\
+Pulse Rate (beats/min) & 39 & 49 & 59 & 100 & 120 & 140 \\
+Temperature (ºC) & & 35 & 35.5 & 38.1 & 38.6 & \\
+Level of Consciousness & NA & NA & NA & & 2 & 3 \\
+\end{longtable}
+
+\newpage
+
+\section{Cohort}\label{cohort}
+
+The data for this study was sourced from the South Australian Electronic
+Medical Record system (EMR). The data set is composed of Emergency
+Department (ED) presentations followed by an inpatient (IP) admission
+with sepsis diagnosis identified by the ICD-10 codes, Table
+\ref{tbl:tableicd-10} \footnote{We have removed infant Sepsis ICD-10
+  codes from the previous work.} (based on a journey, see appendix
+\ref{sec:Journey}).
+
+Specifically we only include the first ED presentation in a journey.
+This excludes presentations that are part of the admission process when
+the patient is transferred from one hospital to another. We also require
+that at least two of the following vital signs are recorded in the EMR
+during the presentation: respiration, O\textsubscript{2} Saturation,
+systolic blood pressure, pulse rate and temperature\footnote{O\textsubscript{2}
+  Flow and the sedation score are not included as these are not usually
+  filled out if the patient is not receiving oxygen or is awake and
+  aware.} (Table \ref{tbl:table1}).
+
+The IP admission is required to be the first episode of care (EoC) after
+any ED presentations \footnote{Note to self, need to look at joining
+  transfers. See CAP and COPD analyses.}. IP admissions where the
+patient does not leave the ED are excluded (these are identified by an
+IP discharge date/time within 60 minutes of the discharge date/time of
+the ED presentation and a location that includes the string
+``ED-Admin''.)
+
+The training data set includes all presentations to Emergency
+Departments at metropolitan hospitals in the calendar year 2023 in which
+at least two observations of vital signs of interest have been made (see
+Table \ref{tbl:table1}). There are \(Y\) ED presentations with at least
+two vital signs recorded which included 2,761 presentations that
+resulted in an inpatient admission which includes at least one ICD-10
+code matching a Sepsis diagnosis. Note, \(X\) (14\%) out of a total
+\(Y\) ED presentations do not have at least two observations of vital
+signs recorded in the EMR and have been excluded from the analysis.
+
+Two verification data sets are used. The first, the Metropolitan
+Verification dataset, is created from ED presentations from 2024. There
+are \(Y_2\) presentations with at least two vital signs recorded of
+which \(X\) \$result in an inpatient admission which includes at least
+one ICD-10 code matching a Sepsis diagnosis. The second, the Country
+Verification dataset, is created using Emergency presentations at
+country hospitals that are using the EMR. There are 149,193
+presentations from the 1 January 2023 through 31 December 2024 that have
+at least two recorded vital signs which results in \(X\) inpatient
+admission.
+
+\newpage
+
+\section{Appendices}\label{appendices}
+
+\subsection{Patient Journey}\label{sec:Journey}
+
+Descriptions and variable names listed below are based on the SA Health
+EMR. Episodes of Care are joined into a journey if they meet the
+following criteria. If the value is set to zero, the EoC is part of the
+same journey.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Check if the previous CHARTGUID entry (for the same\\
+  CLIENTGUID order by discharge datetime) is the same as the current
+  CHARTGUID.\\
+  If yes, set the value to 0.
+\item
+  Check if the time difference between the previous discharge datetime
+  (for the same) and current admission datetime is within 6 hours
+  (either before or after).\\
+  If yes, set the value to 0.
+\item
+  Check if the time difference between the previous discharge datetime
+  (for the same CLIENTGUID) and current admission datetime is within 24
+  hours (either before or after) and the
+  `previous\_discharge\_disposition' (for the same CLIENTGUID order by
+  admission datetime) is in this list (`IP Other hosp - Down', `IP Other
+  hosp - Up', `IP Other Hospital - DOWN',`IP Other Hospital - UP').\\
+  If yes, set the value to 0.
+\item
+  Check if the previous discharge datetime (for the same CLIENTGUID
+  order by discharge datetime) is before the current admission datetime
+  and the previous admission datetime (for the same CLIENTGUID order by
+  admission datetime) date is after the current admission datetime.\\
+  If yes, set the value to 0.
+\item
+  Check if the time difference between the previous discharge datetime
+  (for the same CLIENTGUID order by admission datetime) and current
+  admission datetime is within 24 hours (either before or after) and the
+  previous episode\_of\_care(for the same CLIENTGUID order by admission
+  datetime) is `Rehabilitation' and the current episode\_of\_care is
+  `Hospital at Home - Rehab at Home'.\\
+  If yes, set the value to 0.
+\item
+  Check if the time difference between the previous admission datetime
+  (for the same CLIENTGUID order by admission datetime) and current
+  admission datetime is within 24 hours (either before or after) and the
+  previous TYPECODE (for the same CLIENTGUID order by admitdate asc) is
+  `Emergency' and the current source\_of\_referral is `IP
+  Casualty-Emergency' and the current TYPECODE is `Inpatient'.\\
+  If yes, set the value to 0.
+\end{enumerate}
+
+If none of the above conditions are met start a new journey.
+
+\newpage
+
+\subsection{Sepsis ICD-10 Codes}\label{sepsis-icd-10-codes}
+
+\begin{longtable}[]{@{}
+  >{\centering\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.1094}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.3906}}
+  >{\centering\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.1094}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.3906}}@{}}
+\caption{\label{tbl:tableicd-10}Sepsis Diagnosis Codes (from APC
+Reference Table\_corrected - ICD-10-AM 11th edition
+2019)}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\centering
+Code
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Diagnosis
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Code
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Diagnosis
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\centering
+Code
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Diagnosis
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Code
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Diagnosis
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+A021 & Salmonella sepsis & A412 & Sepsis due to unsp staphylococcus \\
+A227 & Anthrax sepsis & A413 & Sepsis dt Haemophilus influenzae \\
+A267 & Erysipelothrix sepsis & A414 & Sepsis due to anaerobes \\
+A327 & Listerial sepsis & A415 & Sepsis dt oth \& unsp gram neg
+organisms \\
+A40 & Streptococcal sepsis & A4150 & Sepsis dt unsp Gram neg
+organisms \\
+A400 & Sepsis dt streptococcus group A & A4151 & Sepsis dt Escherichia
+coli {[}E coli{]} \\
+A401 & Sepsis dt streptococcus group B & A4152 & Sepsis due to
+Pseudomonas \\
+A402 & Sepsis dt streptococcus grp D \& enteroc & A4158 & Sepsis dt
+other gram neg organisms \\
+A403 & Sepsis dt Streptococcus pneumoniae & A418 & Other specified
+sepsis \\
+A408 & Other streptococcal sepsis & A419 & Sepsis, unspecified \\
+A409 & Streptococcal sepsis unspecified & A427 & Actinomycotic sepsis \\
+A41 & Other sepsis & B377 & Candidal sepsis \\
+A410 & Sepsis due to Staphylococcus aureus & O85 & Puerperal sepsis \\
+A411 & Sepsis dt other spec staphylococcus & & \\
+\end{longtable}
+
+\section{SQL Commands}\label{sql-commands}
+
+\subsection{ED Presentations}\label{ed-presentations}
+
+\begin{lstlisting}[language=SQL]
+create or replace view DEV_DAP_CAE05_DB.SEPSIS.VW_ED_VISIT()
+as SELECT * FROM (
+SELECT ROW_NUMBER() OVER (PARTITION BY JOURNEY_ID ORDER BY ADMITDTM) ED_SEQ_BY_JOURNEY,
+* FROM (
+SELECT * FROM DEV_DAP_CAE05_DB.JNY.TB_PATIENT_JOURNEY_MAPPING_NEW  AS VISIT
+WHERE visit.HOSPITAL IN (SELECT * FROM DEV_DAP_CAE05_DB.SEPSIS.VW_CONFIG_HOSPITAL)
+AND TYPECODE = 'Emergency'
+AND AGEONADMIT > 15
+AND VISIT.ADMITDTM between '2023-01-01'  and DATEADD(month,-1,to_date(getdate()))))
+WHERE ED_SEQ_BY_JOURNEY=1
+\end{lstlisting}
+
+\newpage
+
+\section*{References}\label{references}
+\addcontentsline{toc}{section}{References}
+
+\protect\phantomsection\label{refs}
+\begin{CSLReferences}{0}{1}
+\bibitem[\citeproctext]{ref-RDR}
+\CSLLeftMargin{1. }%
+\CSLRightInline{Sunrise EMR \& PAS deteriorating patient reference guide
+(July 2024). Available at:
+\url{https://inside.sahealth.sa.gov.au/wps/wcm/connect/non-public+content/sa+health+intranet/it+systems/sunrise/resources/sunrise+deteriorating+patient+reference+guide}.}
+
+\end{CSLReferences}
+
+\end{document}
